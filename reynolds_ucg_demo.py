@@ -4,6 +4,8 @@ import numpy as np
 from faker import Faker
 from pyvis.network import Network
 import tempfile, os
+import random
+
 
 faker = Faker()
 st.set_page_config(page_title="Reynolds Universal Customer Graph", layout="wide")
