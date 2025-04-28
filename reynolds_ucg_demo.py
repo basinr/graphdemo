@@ -53,10 +53,12 @@ with tab1:
                  , height=450)
 with tab2:
     st.subheader("Interactive Universal Customer Graph")
-    G = Network(height='600px', width='100%', bgcolor='#ffffff')
+
+    G = Network(height='800px', width='100%', bgcolor='#ffffff', notebook=False)
+    G.barnes_hut()  # better spacing for many nodes
 
     uid = df['UniversalCustomerID'].iloc[0]
-    G.add_node(uid, label=partner, color='#ff7f0e', size=40)
+    G.add_node(uid, label=partner, color='#ff7f0e', size=50, shape='ellipse')
 
     # Define node color by Industry
     color_map = {
@@ -66,29 +68,34 @@ with tab2:
         'Wholesale': '#9467bd',      # Purple
     }
 
+    # Cluster parent nodes per industry
     for _, r in df.iterrows():
         node_id = r['LegalEntity']
         label = f"{r['LegalEntity']}\\n${r['AnnualRevenue']:.0f}M"
-        node_color = color_map.get(r['Industry'], '#7f7f7f')  # Default gray if unknown
-        G.add_node(node_id, label=label, color=node_color, size=20)
+        node_color = color_map.get(r['Industry'], '#7f7f7f')  # default gray
 
-        # Add edges with relationship label
-        relationship = ""
-        if r['Industry'] == 'Retail':
-            relationship = "Retail Customer"
-        elif r['Industry'] == 'Distributor':
-            relationship = "Distributor Partner"
-        elif r['Industry'] == 'E-commerce':
-            relationship = "E-commerce Retailer"
-        elif r['Industry'] == 'Wholesale':
-            relationship = "Wholesale Supply Chain"
+        G.add_node(node_id, label=label, color=node_color, size=25, group=r['Industry'])
 
-        G.add_edge(uid, node_id, title=relationship)
+        # Edge with relationship label (shown, not hover-only)
+        relationship = {
+            'Retail': "Retail",
+            'Distributor': "Distributor",
+            'E-commerce': "E-Comm",
+            'Wholesale': "Wholesale"
+        }.get(r['Industry'], "Partner")
 
-    # Write HTML manually
+        G.add_edge(uid, node_id, label=relationship, font={'size':10})
+
+        # Add 1-2 child nodes under each partner to make it feel more real
+        for i in range(random.randint(1, 2)):
+            child_name = f"{r['LegalEntity']} - {faker.company_suffix()}"
+            G.add_node(child_name, label=child_name, color=node_color, size=15)
+            G.add_edge(node_id, child_name, label="Division", font={'size':8})
+
+    # Write to temp file
     with tempfile.NamedTemporaryFile(delete=False, suffix='.html') as tmpfile:
         G.write_html(tmpfile.name)
         tmpfile.flush()
         with open(tmpfile.name, 'r', encoding='utf-8') as f:
             html_data = f.read()
-        st.components.v1.html(html_data, height=650, scrolling=True)
+        st.components.v1.html(html_data, height=800, scrolling=True)
