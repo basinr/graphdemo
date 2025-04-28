@@ -51,7 +51,6 @@ with tab1:
                    .apply(lambda x: ['font-weight:bold' if v==1 else '' for v in x],
                           subset=['SalesCRM','SupplyChainEDI','Billing','RetailCompliance'])
                  , height=450)
-
 with tab2:
     st.subheader("Interactive Universal Customer Graph")
     # build mini-graph via pyvis
@@ -63,9 +62,12 @@ with tab2:
         label   = f"{r['LegalEntity']}\\n${r['AnnualRevenue']:.0f}M"
         G.add_node(node_id, label=label, size=15)
         G.add_edge(uid, node_id)
-    tmpdir = tempfile.TemporaryDirectory()
-    path   = os.path.join(tmpdir.name, "graph.html")
-    G.show(path)
-    with open(path, 'r', encoding='utf-8') as f:
-        html = f.read()
-    st.components.v1.html(html, height=620, scrolling=True)
+
+    # Write HTML manually, don't .show()
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.html') as tmpfile:
+        G.write_html(tmpfile.name)
+        tmpfile.flush()
+        # Embed inside Streamlit
+        with open(tmpfile.name, 'r', encoding='utf-8') as f:
+            html_data = f.read()
+        st.components.v1.html(html_data, height=650, scrolling=True)
