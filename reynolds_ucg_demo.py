@@ -56,11 +56,12 @@ with tab1:
 with tab2:
     st.subheader("Interactive Universal Customer Graph")
 
-    G = Network(height='800px', width='100%', bgcolor='#ffffff', notebook=False)
-    G.barnes_hut()  # better spacing for many nodes
+    G = Network(height='900px', width='100%', bgcolor='#ffffff', notebook=False, directed=False)
+
+    G.barnes_hut(gravity=-8000, central_gravity=0.3, spring_length=250)
 
     uid = df['UniversalCustomerID'].iloc[0]
-    G.add_node(uid, label=partner, color='#ff7f0e', size=50, shape='ellipse')
+    G.add_node(uid, label=partner, color='#ff7f0e', size=60, shape='ellipse', font={'size':20})
 
     # Define node color by Industry
     color_map = {
@@ -70,15 +71,13 @@ with tab2:
         'Wholesale': '#9467bd',      # Purple
     }
 
-    # Cluster parent nodes per industry
     for _, r in df.iterrows():
         node_id = r['LegalEntity']
         label = f"{r['LegalEntity']}\\n${r['AnnualRevenue']:.0f}M"
-        node_color = color_map.get(r['Industry'], '#7f7f7f')  # default gray
+        node_color = color_map.get(r['Industry'], '#7f7f7f')  # fallback gray
+        G.add_node(node_id, label=label, color=node_color, size=30, group=r['Industry'], font={'size':16})
 
-        G.add_node(node_id, label=label, color=node_color, size=25, group=r['Industry'])
-
-        # Edge with relationship label (shown, not hover-only)
+        # Edge with small relationship label
         relationship = {
             'Retail': "Retail",
             'Distributor': "Distributor",
@@ -88,16 +87,30 @@ with tab2:
 
         G.add_edge(uid, node_id, label=relationship, font={'size':10})
 
-        # Add 1-2 child nodes under each partner to make it feel more real
+        # Child entities
         for i in range(random.randint(1, 2)):
             child_name = f"{r['LegalEntity']} - {faker.company_suffix()}"
-            G.add_node(child_name, label=child_name, color=node_color, size=15)
+            G.add_node(child_name, label=child_name, color=node_color, size=18, font={'size':12})
             G.add_edge(node_id, child_name, label="Division", font={'size':8})
 
-    # Write to temp file
+    # Add manual tiny floating legend inside graph
+    legend_html = """
+    <div style="position: fixed; top: 100px; right: 50px; width: 180px; background-color: white; border: solid 1px #ccc; padding: 10px; z-index:9999; font-size:14px;">
+      <b>Legend</b><br>
+      <span style="color:#1f77b4;">⬤</span> Retail<br>
+      <span style="color:#2ca02c;">⬤</span> Distributor<br>
+      <span style="color:#ff7f0e;">⬤</span> E-commerce<br>
+      <span style="color:#9467bd;">⬤</span> Wholesale<br>
+    </div>
+    """
+
     with tempfile.NamedTemporaryFile(delete=False, suffix='.html') as tmpfile:
         G.write_html(tmpfile.name)
         tmpfile.flush()
         with open(tmpfile.name, 'r', encoding='utf-8') as f:
             html_data = f.read()
-        st.components.v1.html(html_data, height=800, scrolling=True)
+
+    # Inject the legend box into the graph HTML
+    html_with_legend = html_data.replace("<body>", f"<body>{legend_html}")
+
+    st.components.v1.html(html_with_legend, height=900, scrolling=True)
