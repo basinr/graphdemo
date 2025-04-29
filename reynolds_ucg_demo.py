@@ -6,12 +6,14 @@ from pyvis.network import Network
 import tempfile, os
 import random
 
+# 🔧  FIRST Streamlit command must be set_page_config (avoids runtime error)
+st.set_page_config(page_title="Reynolds Universal Customer Graph", layout="wide")
+
 """Streamlit app — demo of Reynolds Universal Customer Graph
-• Upstream systems limited to: SalesCRM, PartnerCRM, Contracts, Billing, Support
+Upstream systems limited to: SalesCRM, PartnerCRM, Contracts, Billing, Support
 """
 
 faker = Faker()
-st.set_page_config(page_title="Reynolds Universal Customer Graph", layout="wide")
 
 # ------------------------------------------------------------------
 # 0️⃣  Demo company metadata (static)
