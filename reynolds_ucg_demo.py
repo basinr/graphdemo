@@ -10,6 +10,52 @@ import random
 faker = Faker()
 st.set_page_config(page_title="Reynolds Universal Customer Graph", layout="wide")
 
+# Example metadata (replace with dynamic data if needed)
+company_info = {
+    "Company Name": "GlobalTech Solutions",
+    "Description": "GlobalTech Solutions is a multinational corporation specializing in consumer products and advanced materials innovation.",
+    "Annual Revenue": "$25B",
+    "Industry": "Consumer Goods",
+    "Employee Count": "60,000",
+    "Headquarters": "Chicago, Illinois, USA",
+    "Total Spend with Reynolds": "$125M"
+}
+
+# Display polished overview section
+with st.container():
+    st.markdown(
+        f"""
+        <div style="
+            background-color: #f9f9f9;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        ">
+            <h2 style="color: #333333; margin-bottom: 0.5rem;">{company_info['Company Name']} Overview</h2>
+            <p style="color: #666666; font-size: 1.1rem; margin-top: 0px;">{company_info['Description']}</p>
+            <div style="display: flex; flex-wrap: wrap; margin-top: 1.5rem;">
+                <div style="flex: 1; min-width: 200px; margin-bottom: 1rem;">
+                    <strong>Annual Revenue:</strong><br>{company_info['Annual Revenue']}
+                </div>
+                <div style="flex: 1; min-width: 200px; margin-bottom: 1rem;">
+                    <strong>Employee Count:</strong><br>{company_info['Employee Count']}
+                </div>
+                <div style="flex: 1; min-width: 200px; margin-bottom: 1rem;">
+                    <strong>Industry:</strong><br>{company_info['Industry']}
+                </div>
+                <div style="flex: 1; min-width: 200px; margin-bottom: 1rem;">
+                    <strong>Headquarters:</strong><br>{company_info['Headquarters']}
+                </div>
+            </div>
+            <div style="margin-top: 1.5rem; padding: 1rem; background-color: #e0f7fa; border-radius: 8px; text-align: center;">
+                <h3 style="margin: 0; color: #007c91;">Total Spend with Reynolds: {company_info['Total Spend with Reynolds']}</h3>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
 # ------------------------------ helper to build fake table ------------------
 def build_partner_table(base_name: str, n=12):
     industries = ['Retail', 'Distributor', 'E-commerce', 'Wholesale']
