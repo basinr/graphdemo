@@ -9,7 +9,7 @@ import random
 """Streamlit app — demo of Reynolds Universal Customer Graph
 • Upstream systems limited to: SalesCRM, PartnerCRM, Contracts, Billing, Support
 """
-
+ƒ
 faker = Faker()
 st.set_page_config(page_title="Reynolds Universal Customer Graph", layout="wide")
 
