@@ -21,6 +21,39 @@ company_info = {
     "Total Spend with Reynolds": "$125M"
 }
 
+
+# ------------------------------ helper to build fake table ------------------
+def build_partner_table(base_name: str, n=12):
+    industries = ['Retail', 'Distributor', 'E-commerce', 'Wholesale']
+    systems = ['SalesCRM', 'SupplyChainEDI', 'Billing', 'RetailCompliance']
+    rows=[]
+    for i in range(n):
+        ent = f"{base_name} {faker.company_suffix()}" if i else base_name
+        row = dict(
+            UniversalCustomerID="UCID-"+faker.bothify(text='??##??##'),
+            ParentCompany=base_name,
+            LegalEntity=ent,
+            HQ_Country='US',
+            AnnualRevenue=np.round(np.random.uniform(200, 100000),2),   # $M
+            Industry=np.random.choice(industries),
+            EmployeeCount=np.random.randint(500, 30000),
+        )
+        for sys in systems:
+            row[sys] = np.random.choice([1,0], p=[0.7,0.3])
+        rows.append(row)
+    df = pd.DataFrame(rows)
+    return df
+
+# ------------------------------ sidebar ------------------
+st.sidebar.header("Universal Customer Demo for Reynolds Consumer Products")
+partner = st.sidebar.text_input("Enter channel-partner name:",
+                                value="Costco Wholesale Corporation")
+n_entities = st.sidebar.slider("How many legal entities to generate:",
+                               5, 20, 12)
+
+df = build_partner_table(partner, n_entities)
+
+#---top section --- #
 # Display polished overview section
 with st.container():
     st.markdown(
@@ -55,37 +88,6 @@ with st.container():
         """,
         unsafe_allow_html=True
     )
-
-# ------------------------------ helper to build fake table ------------------
-def build_partner_table(base_name: str, n=12):
-    industries = ['Retail', 'Distributor', 'E-commerce', 'Wholesale']
-    systems = ['SalesCRM', 'SupplyChainEDI', 'Billing', 'RetailCompliance']
-    rows=[]
-    for i in range(n):
-        ent = f"{base_name} {faker.company_suffix()}" if i else base_name
-        row = dict(
-            UniversalCustomerID="UCID-"+faker.bothify(text='??##??##'),
-            ParentCompany=base_name,
-            LegalEntity=ent,
-            HQ_Country='US',
-            AnnualRevenue=np.round(np.random.uniform(200, 100000),2),   # $M
-            Industry=np.random.choice(industries),
-            EmployeeCount=np.random.randint(500, 30000),
-        )
-        for sys in systems:
-            row[sys] = np.random.choice([1,0], p=[0.7,0.3])
-        rows.append(row)
-    df = pd.DataFrame(rows)
-    return df
-
-# ------------------------------ sidebar ------------------
-st.sidebar.header("Universal Customer Demo for Reynolds Consumer Products")
-partner = st.sidebar.text_input("Enter channel-partner name:",
-                                value="Costco Wholesale Corporation")
-n_entities = st.sidebar.slider("How many legal entities to generate:",
-                               5, 20, 12)
-
-df = build_partner_table(partner, n_entities)
 
 # ------------------------------ tabbed UI ------------------
 tab1, tab2 = st.tabs(["📊 Table View", "🌐 Network View"])
